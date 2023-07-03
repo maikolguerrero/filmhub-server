@@ -75,6 +75,7 @@ class MoviesController {
       res.status(500).json({ status: 500, message: `Error al obtener la película: ${error.message}` });
     }
   }
+
   // Obtener una película por su título
   async getByTitle(req, res) {
     try {
@@ -90,6 +91,27 @@ class MoviesController {
       res.status(200).json({ status: 200, message: 'Película encontrada.', data: { movie: { ...movie, genre: name } } });
     } catch (error) {
       res.status(500).json({ status: 500, message: `Error al obtener la película: ${error.message}` });
+    }
+  }
+
+// Obtener una película por su franquicia
+  async getByFranchise(req, res) {
+    try {
+      const franchise = req.params.franchise;
+
+      // Verificar que exista la película
+      const movies = await moviesModel.getByFranchise(franchise);
+      if (!movies.length) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
+
+      // Buscar el género de las películas
+      const moviesWithGenre = await Promise.all(movies.map(async (movie) => {
+        const { name } = await moviesModel.getGenreByMovieId(movie.id);
+        return { ...movie, genre: name };
+      }));
+
+      res.status(200).json({ status: 200, message: 'Películas encontradas.', data: { movies: moviesWithGenre } });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
     }
   }
 

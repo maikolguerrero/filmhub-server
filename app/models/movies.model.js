@@ -53,6 +53,19 @@ class MoviesModel {
     }
   }
 
+  // Obtener una película por su franquicia
+  async getByFranchise(franchise) {
+    const sql = 'SELECT * FROM movies WHERE franchise LIKE ?';
+    const values = [`%${franchise}%`];
+    try {
+      const movies = await query(sql, values);
+      return movies;
+    } catch (error) {
+      console.log(`Hubo un error al obtener la película con franquicia ${franchise}:`, error);
+      throw error;
+    }
+  }
+
   // Actualizar una película por ID
   async updateById(id, { title, image, synopsis, release_date, actors, directors, franchise, rating }) {
     const sql = 'UPDATE movies SET title = ?, image = ?, synopsis = ?, release_date = ?, actors = ?, directors = ?, franchise = ?, rating = ? WHERE id = ?';
