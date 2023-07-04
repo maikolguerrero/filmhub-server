@@ -54,14 +54,30 @@ class MoviesModel {
   }
 
   // Obtener una película por su título (sin importar q tanto se coloque del mismo)
-async getByTitleAll(title) {
-  const sql = 'SELECT * FROM movies WHERE title LIKE ?';
-  const values = [`%${title}%`];
+  async getByTitleAll(title) {
+    const sql = 'SELECT * FROM movies WHERE title LIKE ?';
+    const values = [`%${title}%`];
+    try {
+      const movies = await query(sql, values);
+      return movies;
+    } catch (error) {
+      console.log(`Hubo un error al obtener la película con título ${title}:`, error);
+      throw error;
+    }
+  }
+
+// Obtener una película por su género
+async getByGenre(genre) {
+  const sql = `SELECT m.* FROM movies m 
+                JOIN movies_genres mg ON m.id = mg.movie_id 
+                JOIN genres g ON mg.genre_id = g.id 
+                WHERE g.name LIKE ?`;
+  const values = [`%${genre}%`];
   try {
     const movies = await query(sql, values);
     return movies;
   } catch (error) {
-    console.log(`Hubo un error al obtener la película con título ${title}:`, error);
+    console.log(`Hubo un error al obtener la película con género ${genre}:`, error);
     throw error;
   }
 }

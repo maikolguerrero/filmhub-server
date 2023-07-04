@@ -7,6 +7,7 @@ router.post('/', upload.single('image'), moviesController.add);
 router.get('/', moviesController.getAll);
 router.get('/:id', moviesController.getById);
 router.get('/title/:title', moviesController.getByTitle);
+router.get('/genre/:genre', moviesController.getByGenre);
 router.get('/franchise/:franchise', moviesController.getByFranchise);
 router.get('/synopsis/:synopsis', moviesController.getBySynopsis);
 router.get('/actors/:actors', moviesController.getByActors);
