@@ -202,6 +202,32 @@ async getByGenre(genre) {
       throw new Error(`Error al eliminar la relación película-género: ${error.message}`);
     }
   }
+
+  // Eliminar la relación película-review en la tabla movies_reviews y eliminar los reviews asociados
+async deleteMovieReviews(movieId) {
+  try {
+    // Obtener los IDs de los reviews asociados con la película
+    const sql = 'SELECT review_id FROM movies_reviews WHERE movie_id = ?';
+    const values = [movieId];
+    const reviews = await query(sql, values);
+    const reviewIds = reviews.map(review => review.review_id);
+
+    // Eliminar las relaciones película-review en la tabla movies_reviews
+    const deleteSql = 'DELETE FROM movies_reviews WHERE movie_id = ?';
+    const deleteValues = [movieId];
+    await query(deleteSql, deleteValues);
+
+    // Eliminar los reviews asociados con la película
+    if (reviewIds.length > 0) {
+      const placeholders = reviewIds.map(() => '?').join(',');
+      const deleteReviewsSql = `DELETE FROM reviews WHERE id IN (${placeholders})`;
+      await query(deleteReviewsSql, reviewIds);
+    }
+  } catch (error) {
+    console.log(`Hubo un error al eliminar los reviews de la película con ID ${movieId}:`, error);
+    throw error;
+  }
+}
 }
 
 const moviesModel = new MoviesModel();

@@ -16,7 +16,7 @@ class ReviewsModel {
     }
 
     // Conectar un review con una película
-    async connectToMovie(movieId, reviewId) {
+    async addMovieReview(movieId, reviewId) {
         try {
         const sql = 'INSERT INTO movies_reviews (movie_id, review_id) VALUES (?, ?)';
         const values = [movieId, reviewId];

@@ -15,7 +15,7 @@ class ReviewsController {
         const newReviewId = await reviewsModel.add(name, rating, comment);
 
         // Conectar el review con la película
-        await reviewsModel.connectToMovie(movieId, newReviewId);
+        await reviewsModel.addMovieReview(movieId, newReviewId);
 
         res.status(201).json({ status: 201, message: 'Review creado y conectado exitosamente.', data: { id: newReviewId } });
         } catch (error) {

@@ -283,32 +283,37 @@ class MoviesController {
     }
   }
 
+
   // Eliminar una película por ID
-  async deleteById(req, res) {
-    try {
-      const id = req.params.id;
+async deleteById(req, res) {
+  try {
+    const id = req.params.id;
 
-      // Verificar si la película existe
-      const existingMovie = await moviesModel.getById(id);
-      if (!existingMovie) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
+    // Verificar si la película existe
+    const existingMovie = await moviesModel.getById(id);
+    if (!existingMovie) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
 
-      // Eliminar la relación película-género en la tabla movies_genres
-      await moviesModel.deleteMovieGenre(id);
+    // Eliminar la relación película-género en la tabla movies_genres
+    await moviesModel.deleteMovieGenre(id);
 
-      // Eliminar la película
-      const affectedRows = await moviesModel.deleteById(id);
-      if (affectedRows === 0) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
+    // Eliminar la relación película-review en la tabla movies_reviews y eliminar los reviews asociados
+    await moviesModel.deleteMovieReviews(id);
 
-      // Eliminar la imagen
-      const folder = `../../static/images/${existingMovie.image}`;
-      const imagePath = path.join(__dirname, folder);
-      deleteImage(imagePath);
+    // Eliminar la película
+    const affectedRows = await moviesModel.deleteById(id);
+    if (affectedRows === 0) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
 
-      res.status(200).json({ status: 200, message: 'Película eliminada exitosamente.' });
-    } catch (error) {
-      res.status(500).json({ status: 500, message: `Error al eliminar la película: ${error.message}` });
-    }
+    // Eliminar la imagen
+    const folder = `../../static/images/${existingMovie.image}`;
+    const imagePath = path.join(__dirname, folder);
+    deleteImage(imagePath);
+
+    res.status(200).json({ status: 200, message: 'Película eliminada exitosamente.' });
+  } catch (error) {
+    res.status(500).json({ status: 500, message: `Error al eliminar la película: ${error.message}` });
   }
+}
+
 }
 
 const moviesController = new MoviesController();
