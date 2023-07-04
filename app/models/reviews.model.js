@@ -15,6 +15,21 @@ class ReviewsModel {
         }
     }
 
+    // Conectar un review con una película
+    async connectToMovie(movieId, reviewId) {
+        try {
+        const sql = 'INSERT INTO movies_reviews (movie_id, review_id) VALUES (?, ?)';
+        const values = [movieId, reviewId];
+        const response = await query(sql, values);
+        const newConnectionId = response.insertId;
+        return newConnectionId;
+        } catch (error) {
+        console.log(`Hubo un error al conectar el review ${reviewId} con la película ${movieId}:`, error);
+        throw error;
+        }
+    }
+
+
     // Obtener todos los reviews
     async getAll() {
         try {
