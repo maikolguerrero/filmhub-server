@@ -51,6 +51,19 @@ class TokensModel {
       throw error;
     }
   }
+
+
+  // Eliminar un token de la base de datos
+  async deleteByIdUsername(id) {
+    try {
+      const sql = 'DELETE FROM tokens WHERE user_id = ?';
+      const values = [id];
+      await query(sql, values);
+    } catch (error) {
+      console.log('Hubo un error al eliminar el token:', error);
+      throw error;
+    }
+  }
 }
 
 const tokensModel = new TokensModel();
