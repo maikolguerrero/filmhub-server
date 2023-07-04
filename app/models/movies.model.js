@@ -53,6 +53,87 @@ class MoviesModel {
     }
   }
 
+  // Obtener una película por su título (sin importar q tanto se coloque del mismo)
+  async getByTitleAll(title) {
+    const sql = 'SELECT * FROM movies WHERE title LIKE ?';
+    const values = [`%${title}%`];
+    try {
+      const movies = await query(sql, values);
+      return movies;
+    } catch (error) {
+      console.log(`Hubo un error al obtener la película con título ${title}:`, error);
+      throw error;
+    }
+  }
+
+// Obtener una película por su género
+async getByGenre(genre) {
+  const sql = `SELECT m.* FROM movies m 
+                JOIN movies_genres mg ON m.id = mg.movie_id 
+                JOIN genres g ON mg.genre_id = g.id 
+                WHERE g.name LIKE ?`;
+  const values = [`%${genre}%`];
+  try {
+    const movies = await query(sql, values);
+    return movies;
+  } catch (error) {
+    console.log(`Hubo un error al obtener la película con género ${genre}:`, error);
+    throw error;
+  }
+}
+
+  // Obtener una película por su franquicia
+  async getByFranchise(franchise) {
+    const sql = 'SELECT * FROM movies WHERE franchise LIKE ?';
+    const values = [`%${franchise}%`];
+    try {
+      const movies = await query(sql, values);
+      return movies;
+    } catch (error) {
+      console.log(`Hubo un error al obtener la película con franquicia ${franchise}:`, error);
+      throw error;
+    }
+  }
+
+  // Obtener una película por sus actores
+  async getByActors(actors) {
+    const sql = 'SELECT * FROM movies WHERE actors LIKE ?';
+    const values = actors.map(actor => `%${actor}%`);
+    try {
+      const movies = await Promise.all(values.map(value => query(sql, [value])));
+      return movies.flat();
+    } catch (error) {
+      console.log(`Hubo un error al obtener la película con actores ${actors}:`, error);
+      throw error;
+    }
+  }
+
+  // Obtener una película por sus directores
+  async getByDirectors(directors) {
+    const sql = 'SELECT * FROM movies WHERE directors LIKE ?';
+    const values = directors.map(director => `%${director}%`);
+    try {
+      const movies = await Promise.all(values.map(value => query(sql, [value])));
+      return movies.flat();
+    } catch (error) {
+      console.log(`Hubo un error al obtener la película con directores ${directors}:`, error);
+      throw error;
+    }
+  }
+
+  // Obtener una película por su sinopsis
+  async getBySynopsis(synopsis) {
+    const sql = 'SELECT * FROM movies WHERE synopsis LIKE ?';
+    const values = [`%${synopsis}%`];
+    try {
+      const movies = await query(sql, values);
+      return movies;
+    } catch (error) {
+      console.log(`Hubo un error al obtener la película con sinopsis ${synopsis}:`, error);
+      throw error;
+    }
+  }
+
   // Actualizar una película por ID
   async updateById(id, { title, image, synopsis, release_date, actors, directors, franchise, rating }) {
     const sql = 'UPDATE movies SET title = ?, image = ?, synopsis = ?, release_date = ?, actors = ?, directors = ?, franchise = ?, rating = ? WHERE id = ?';
@@ -121,6 +202,32 @@ class MoviesModel {
       throw new Error(`Error al eliminar la relación película-género: ${error.message}`);
     }
   }
+
+  // Eliminar la relación película-review en la tabla movies_reviews y eliminar los reviews asociados
+async deleteMovieReviews(movieId) {
+  try {
+    // Obtener los IDs de los reviews asociados con la película
+    const sql = 'SELECT review_id FROM movies_reviews WHERE movie_id = ?';
+    const values = [movieId];
+    const reviews = await query(sql, values);
+    const reviewIds = reviews.map(review => review.review_id);
+
+    // Eliminar las relaciones película-review en la tabla movies_reviews
+    const deleteSql = 'DELETE FROM movies_reviews WHERE movie_id = ?';
+    const deleteValues = [movieId];
+    await query(deleteSql, deleteValues);
+
+    // Eliminar los reviews asociados con la película
+    if (reviewIds.length > 0) {
+      const placeholders = reviewIds.map(() => '?').join(',');
+      const deleteReviewsSql = `DELETE FROM reviews WHERE id IN (${placeholders})`;
+      await query(deleteReviewsSql, reviewIds);
+    }
+  } catch (error) {
+    console.log(`Hubo un error al eliminar los reviews de la película con ID ${movieId}:`, error);
+    throw error;
+  }
+}
 }
 
 const moviesModel = new MoviesModel();

@@ -75,6 +75,7 @@ class MoviesController {
       res.status(500).json({ status: 500, message: `Error al obtener la película: ${error.message}` });
     }
   }
+
   // Obtener una película por su título
   async getByTitle(req, res) {
     try {
@@ -90,6 +91,138 @@ class MoviesController {
       res.status(200).json({ status: 200, message: 'Película encontrada.', data: { movie: { ...movie, genre: name } } });
     } catch (error) {
       res.status(500).json({ status: 500, message: `Error al obtener la película: ${error.message}` });
+    }
+  }
+
+  // Obtener una película por su título (sin importar q tanto se coloque del mismo)
+  async getByTitleAll(req, res) {
+    try {
+      const title = req.params.title;
+
+      // Verificar que exista la película
+      const movies = await moviesModel.getByTitleAll(title);
+      if (!movies.length) return res.status(404).json({ status: 404, message: 'Titulo no encontrado.' });
+
+      // Buscar el género de las películas
+      const moviesWithGenre = await Promise.all(movies.map(async (movie) => {
+        const { name } = await moviesModel.getGenreByMovieId(movie.id);
+        return { ...movie, genre: name };
+      }));
+
+      // Manejo de Errores
+      res.status(200).json({ status: 200, message: 'Películas encontradas por Titulo.', data: { movies: moviesWithGenre } });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
+    }
+  }
+
+  // Obtener una película por su género
+  async getByGenre(req, res) {
+    try {
+      const genre = req.params.genre;
+
+      // Verificar que exista la película
+      const movies = await moviesModel.getByGenre(genre);
+      if (!movies.length) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
+
+      // Buscar el género de las películas
+      const moviesWithGenre = await Promise.all(movies.map(async (movie) => {
+        const { name } = await moviesModel.getGenreByMovieId(movie.id);
+        return { ...movie, genre: name };
+      }));
+
+      // Manejo de Errores
+      res.status(200).json({ status: 200, message: 'Películas encontradas.', data: { movies: moviesWithGenre } });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
+    }
+  }
+
+// Obtener una película por su franquicia
+  async getByFranchise(req, res) {
+    try {
+      const franchise = req.params.franchise;
+
+      // Verificar que exista la película
+      const movies = await moviesModel.getByFranchise(franchise);
+      if (!movies.length) return res.status(404).json({ status: 404, message: 'Franquicia no encontrada.' });
+
+      // Buscar el género de las películas
+      const moviesWithGenre = await Promise.all(movies.map(async (movie) => {
+        const { name } = await moviesModel.getGenreByMovieId(movie.id);
+        return { ...movie, genre: name };
+      }));
+
+      // Manejo de Errores
+      res.status(200).json({ status: 200, message: 'Películas encontradas con Franquicia.', data: { movies: moviesWithGenre } });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
+    }
+  }
+
+  // Obtener una película por su sinopsis
+  async getBySynopsis(req, res) {
+    try {
+      const synopsis = req.params.synopsis;
+
+      // Verificar que exista la película
+      const movies = await moviesModel.getBySynopsis(synopsis);
+      if (!movies.length) return res.status(404).json({ status: 404, message: 'Sinopsis no encontrada.' });
+
+      // Buscar el género de las películas
+      const moviesWithGenre = await Promise.all(movies.map(async (movie) => {
+        const { name } = await moviesModel.getGenreByMovieId(movie.id);
+        return { ...movie, genre: name };
+      }));
+
+      // Manejo de Errores
+      res.status(200).json({ status: 200, message: 'Películas encontradas con la Sinopsis.', data: { movies: moviesWithGenre } });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
+    }
+  }
+
+  // Obtener una película por sus actores
+  async getByActors(req, res) {
+    try {
+      const actors = req.params.actors.split(',');
+
+      // Verificar que exista la película
+      const movies = await moviesModel.getByActors(actors);
+      if (!movies.length) return res.status(404).json({ status: 404, message: 'Actor no encontrado.' });
+
+      // Buscar el género de las películas
+      const moviesWithGenre = await Promise.all(movies.map(async (movie) => {
+        const { name } = await moviesModel.getGenreByMovieId(movie.id);
+        return { ...movie, genre: name };
+      }));
+
+      // Manejo de Errores
+      res.status(200).json({ status: 200, message: 'Películas encontradas con el Actor.', data: { movies: moviesWithGenre } });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
+    }
+  }
+
+  // Obtener una película por sus directores
+  async getByDirectors(req, res) {
+    try {
+      const directors = req.params.directors.split(',');
+
+      // Verificar que exista la película
+      const movies = await moviesModel.getByDirectors(directors);
+      if (!movies.length) return res.status(404).json({ status: 404, message: 'Director no encontrado.' });
+
+      // Buscar el género de las películas
+      const moviesWithGenre = await Promise.all(movies.map(async (movie) => {
+        const { name } = await moviesModel.getGenreByMovieId(movie.id);
+        return { ...movie, genre: name };
+      }));
+
+      // Manejo de Errores
+      res.status(200).json({ status: 200, message: 'Películas encontradas con el Director.', data: { movies: moviesWithGenre } });
+    } catch (error) {
+    res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
     }
   }
 
@@ -150,32 +283,37 @@ class MoviesController {
     }
   }
 
+
   // Eliminar una película por ID
-  async deleteById(req, res) {
-    try {
-      const id = req.params.id;
+async deleteById(req, res) {
+  try {
+    const id = req.params.id;
 
-      // Verificar si la película existe
-      const existingMovie = await moviesModel.getById(id);
-      if (!existingMovie) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
+    // Verificar si la película existe
+    const existingMovie = await moviesModel.getById(id);
+    if (!existingMovie) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
 
-      // Eliminar la relación película-género en la tabla movies_genres
-      await moviesModel.deleteMovieGenre(id);
+    // Eliminar la relación película-género en la tabla movies_genres
+    await moviesModel.deleteMovieGenre(id);
 
-      // Eliminar la película
-      const affectedRows = await moviesModel.deleteById(id);
-      if (affectedRows === 0) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
+    // Eliminar la relación película-review en la tabla movies_reviews y eliminar los reviews asociados
+    await moviesModel.deleteMovieReviews(id);
 
-      // Eliminar la imagen
-      const folder = `../../static/images/${existingMovie.image}`;
-      const imagePath = path.join(__dirname, folder);
-      deleteImage(imagePath);
+    // Eliminar la película
+    const affectedRows = await moviesModel.deleteById(id);
+    if (affectedRows === 0) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
 
-      res.status(200).json({ status: 200, message: 'Película eliminada exitosamente.' });
-    } catch (error) {
-      res.status(500).json({ status: 500, message: `Error al eliminar la película: ${error.message}` });
-    }
+    // Eliminar la imagen
+    const folder = `../../static/images/${existingMovie.image}`;
+    const imagePath = path.join(__dirname, folder);
+    deleteImage(imagePath);
+
+    res.status(200).json({ status: 200, message: 'Película eliminada exitosamente.' });
+  } catch (error) {
+    res.status(500).json({ status: 500, message: `Error al eliminar la película: ${error.message}` });
   }
+}
+
 }
 
 const moviesController = new MoviesController();
