@@ -11,7 +11,7 @@ router.get('/franchise/:franchise', moviesController.getByFranchise);
 router.get('/synopsis/:synopsis', moviesController.getBySynopsis);
 router.get('/actors/:actors', moviesController.getByActors);
 router.get('/directors/:directors', moviesController.getByDirectors);
-
+router.get('/title/all/:title', moviesController.getByTitleAll);
 router.put('/:id', upload.single('image'), moviesController.updateById);
 router.delete('/:id', moviesController.deleteById);
 
