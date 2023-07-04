@@ -9,6 +9,9 @@ router.get('/:id', moviesController.getById);
 router.get('/title/:title', moviesController.getByTitle);
 router.get('/franchise/:franchise', moviesController.getByFranchise);
 router.get('/synopsis/:synopsis', moviesController.getBySynopsis);
+router.get('/actors/:actors', moviesController.getByActors);
+router.get('/directors/:directors', moviesController.getByDirectors);
+
 router.put('/:id', upload.single('image'), moviesController.updateById);
 router.delete('/:id', moviesController.deleteById);
 

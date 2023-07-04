@@ -94,14 +94,14 @@ class MoviesController {
     }
   }
 
-// Obtener una película por su franquicia
-  async getByFranchise(req, res) {
+  // Obtener una película por su título (sin importar q tanto se coloque del mismo)
+  async getByTitleAll(req, res) {
     try {
-      const franchise = req.params.franchise;
+      const title = req.params.title;
 
       // Verificar que exista la película
-      const movies = await moviesModel.getByFranchise(franchise);
-      if (!movies.length) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
+      const movies = await moviesModel.getByTitleAll(title);
+      if (!movies.length) return res.status(404).json({ status: 404, message: 'Titulo no encontrado.' });
 
       // Buscar el género de las películas
       const moviesWithGenre = await Promise.all(movies.map(async (movie) => {
@@ -110,7 +110,29 @@ class MoviesController {
       }));
 
       // Manejo de Errores
-      res.status(200).json({ status: 200, message: 'Películas encontradas.', data: { movies: moviesWithGenre } });
+      res.status(200).json({ status: 200, message: 'Películas encontradas por Titulo.', data: { movies: moviesWithGenre } });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
+    }
+  }
+
+// Obtener una película por su franquicia
+  async getByFranchise(req, res) {
+    try {
+      const franchise = req.params.franchise;
+
+      // Verificar que exista la película
+      const movies = await moviesModel.getByFranchise(franchise);
+      if (!movies.length) return res.status(404).json({ status: 404, message: 'Franquicia no encontrada.' });
+
+      // Buscar el género de las películas
+      const moviesWithGenre = await Promise.all(movies.map(async (movie) => {
+        const { name } = await moviesModel.getGenreByMovieId(movie.id);
+        return { ...movie, genre: name };
+      }));
+
+      // Manejo de Errores
+      res.status(200).json({ status: 200, message: 'Películas encontradas con Franquicia.', data: { movies: moviesWithGenre } });
     } catch (error) {
       res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
     }
@@ -123,7 +145,7 @@ class MoviesController {
 
       // Verificar que exista la película
       const movies = await moviesModel.getBySynopsis(synopsis);
-      if (!movies.length) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
+      if (!movies.length) return res.status(404).json({ status: 404, message: 'Sinopsis no encontrada.' });
 
       // Buscar el género de las películas
       const moviesWithGenre = await Promise.all(movies.map(async (movie) => {
@@ -132,9 +154,53 @@ class MoviesController {
       }));
 
       // Manejo de Errores
-      res.status(200).json({ status: 200, message: 'Películas encontradas.', data: { movies: moviesWithGenre } });
+      res.status(200).json({ status: 200, message: 'Películas encontradas con la Sinopsis.', data: { movies: moviesWithGenre } });
     } catch (error) {
       res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
+    }
+  }
+
+  // Obtener una película por sus actores
+  async getByActors(req, res) {
+    try {
+      const actors = req.params.actors.split(',');
+
+      // Verificar que exista la película
+      const movies = await moviesModel.getByActors(actors);
+      if (!movies.length) return res.status(404).json({ status: 404, message: 'Actor no encontrado.' });
+
+      // Buscar el género de las películas
+      const moviesWithGenre = await Promise.all(movies.map(async (movie) => {
+        const { name } = await moviesModel.getGenreByMovieId(movie.id);
+        return { ...movie, genre: name };
+      }));
+
+      // Manejo de Errores
+      res.status(200).json({ status: 200, message: 'Películas encontradas con el Actor.', data: { movies: moviesWithGenre } });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
+    }
+  }
+
+  // Obtener una película por sus directores
+  async getByDirectors(req, res) {
+    try {
+      const directors = req.params.directors.split(',');
+
+      // Verificar que exista la película
+      const movies = await moviesModel.getByDirectors(directors);
+      if (!movies.length) return res.status(404).json({ status: 404, message: 'Director no encontrado.' });
+
+      // Buscar el género de las películas
+      const moviesWithGenre = await Promise.all(movies.map(async (movie) => {
+        const { name } = await moviesModel.getGenreByMovieId(movie.id);
+        return { ...movie, genre: name };
+      }));
+
+      // Manejo de Errores
+      res.status(200).json({ status: 200, message: 'Películas encontradas con el Director.', data: { movies: moviesWithGenre } });
+    } catch (error) {
+    res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
     }
   }
 
