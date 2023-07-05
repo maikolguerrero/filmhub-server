@@ -55,6 +55,19 @@ class ReviewsModel {
     }
   }
 
+  // Obtener la asociacion del id de la pelicula y el  review
+  async getMovieIdByReviewId(reviewId) {
+    try {
+        const sql = 'SELECT movie_id FROM movies_reviews WHERE review_id = ?';
+        const values = [reviewId];
+        const [result] = await query(sql, values);
+        return result.movie_id;
+    } catch (error) {
+        console.log(`Hubo un error al obtener el ID de la película asociada con el review con ID ${reviewId}:`, error);
+        throw error;
+    }
+}
+
   // Editar un review por ID
   async updateById(id, name, rating, comment) {
     try {

@@ -257,6 +257,28 @@ class MoviesController {
     }
   }
 
+  // Obtener una película por cuqlquier tipo de búsqueda
+  async getBySearch(req, res) {
+    try {
+      const dato = req.body;
+  
+      // Verificar que exista la película
+      const movies = await moviesModel.getBySearch(dato);
+      if (!movies.length) return res.status(404).json({ status: 404, message: 'Películas no encontradas.' });
+  
+      // Buscar el género de las películas
+      const moviesWithGenre = await Promise.all(movies.map(async (movie) => {
+        const { name } = await moviesModel.getGenreByMovieId(movie.id);
+        return { ...movie, genre: name };
+      }));
+  
+      // Manejo de Errores
+      res.status(200).json({ status: 200, message: 'Películas encontradas.', data: { movies: moviesWithGenre } });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
+    }
+  }
+
   // Actualizar una película por ID
   async updateById(req, res) {
     try {

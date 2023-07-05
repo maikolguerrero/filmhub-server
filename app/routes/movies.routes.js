@@ -16,5 +16,6 @@ router.get('/directors/:directors', moviesController.getByDirectors); // Ruta pa
 router.get('/title/all/:title', moviesController.getByTitleAll); // Ruta para filtrar una peli por su titulo sin importar q tanto se ponga del mismo
 router.put('/:id', upload.single('image'), moviesController.updateById); // Ruta para editar una peli por su id
 router.delete('/:id', moviesController.deleteById); // Ruta para eliminar una peli por su id
+router.post('/search', moviesController.getBySearch); // Ruta para filtrar una peli por cualquier calor de busqueda
 
 module.exports = router;

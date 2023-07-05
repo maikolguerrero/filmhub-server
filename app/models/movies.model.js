@@ -134,6 +134,62 @@ class MoviesModel {
     }
   }
 
+  // Obtener una película por cuqlquier tipo de búsqueda
+  async getBySearch(dato) {
+    let sql = 'SELECT * FROM movies WHERE 1=1';
+    const values = [];
+  
+    if (dato.search) {
+      sql += ` AND (
+        title LIKE ? OR
+        franchise LIKE ? OR
+        synopsis LIKE ? OR
+        actors LIKE ? OR
+        directors LIKE ? OR
+        id IN (
+          SELECT m.id FROM movies m 
+          JOIN movies_genres mg ON m.id = mg.movie_id 
+          JOIN genres g ON mg.genre_id = g.id 
+          WHERE g.name LIKE ?
+        )
+      )`;
+      values.push(`%${dato.search}%`, `%${dato.search}%`, `%${dato.search}%`, `%${dato.search}%`, `%${dato.search}%`, `%${dato.search}%`);
+    }
+  
+    try {
+      const movies = await query(sql, values);
+      return movies;
+    } catch (error) {
+      console.log(`Hubo un error al obtener las películas con la búsqueda ${JSON.stringify(dato)}:`, error);
+      throw error;
+    }
+  }
+
+  //Actualizar dinamicamente el rating al agregar o eliminar un review
+  async updateMovieRating(movieId) {
+    try {
+      // Obtener todas las reseñas de la película
+      const sql = 'SELECT rating FROM reviews INNER JOIN movies_reviews ON reviews.id = movies_reviews.review_id WHERE movies_reviews.movie_id = ?';
+      const values = [movieId];
+      const reviews = await query(sql, values);
+  
+      // Calcular el promedio de las calificaciones
+      let sum = 0;
+      for (const review of reviews) {
+        sum += review.rating;
+      }
+      const averageRating = sum / reviews.length;
+  
+      // Actualizar el rating de la película
+      const updateSql = 'UPDATE movies SET rating = ? WHERE id = ?';
+      const updateValues = [averageRating, movieId];
+      await query(updateSql, updateValues);
+    } catch (error) {
+      console.log(`Hubo un error al actualizar el rating de la película con ID ${movieId}:`, error);
+      throw error;
+    }
+  }
+
   // Actualizar una película por ID
   async updateById(id, { title, image, synopsis, release_date, actors, directors, franchise, rating }) {
     const sql = 'UPDATE movies SET title = ?, image = ?, synopsis = ?, release_date = ?, actors = ?, directors = ?, franchise = ?, rating = ? WHERE id = ?';
