@@ -17,6 +17,9 @@ class ReviewsController {
         // Conectar el review con la película
         await reviewsModel.addMovieReview(movieId, newReviewId);
 
+        // Actualizar el rating promedio de la película
+        await moviesModel.updateMovieRating(movieId);
+
         res.status(201).json({ status: 201, message: 'Review creado y conectado exitosamente.', data: { id: newReviewId } });
         } catch (error) {
         res.status(500).json({ status: 500, message: `Error al crear y conectar el review: ${error.message}` });
@@ -71,19 +74,25 @@ class ReviewsController {
   // Eliminar un review por ID
     async deleteById(req, res) {
         try {
-        const id = req.params.id;
+            const id = req.params.id;
 
         // Verificar si el review existe
-        const existingReview = await reviewsModel.getById(id);
-        if (!existingReview) return res.status(404).json({ status: 404, message: 'Review no encontrado.' });
+            const existingReview = await reviewsModel.getById(id);
+            if (!existingReview) return res.status(404).json({ status: 404, message: 'Review no encontrado.' });
+
+        // Obtener el ID de la película asociada con el review
+        const movieId = await reviewsModel.getMovieIdByReviewId(id);
 
         // Eliminar el review
         const affectedRows = await reviewsModel.deleteById(id);
         if (affectedRows === 0) return res.status(404).json({ status: 404, message: 'Review no encontrado.' });
 
-        res.status(200).json({ status: 200, message: 'Review eliminado exitosamente.' });
+        // Actualizar el rating promedio de la película
+            await moviesModel.updateMovieRating(movieId);
+
+            res.status(200).json({ status: 200, message: 'Review eliminado exitosamente.' });
         } catch (error) {
-        res.status(500).json({ status: 500, message: `Error al eliminar el review: ${error.message}` });
+            res.status(500).json({ status: 500, message: `Error al eliminar el review: ${error.message}` });
         }
     }
 }
