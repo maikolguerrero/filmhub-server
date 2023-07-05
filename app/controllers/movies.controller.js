@@ -31,6 +31,14 @@ class MoviesController {
       // Obtener el nombre de la imagen
       const image = path.basename(imagePath);
 
+      // Comprobar los permisos para actualizar un admin
+      const { role } = req.admin;
+      const permissions = JSON.parse(req.admin.permissions);
+      if ((role != "admin" && role != "root") || !permissions.create) {
+        deleteImage(imagePath);
+        return res.status(403).json({ status: 403, message: 'No tienes autorización para realizar está acción.' })
+      };
+
       // Verificar si el género existe
       const existingGenre = await genresModel.getById(genre);
       if (!existingGenre) {
@@ -47,7 +55,6 @@ class MoviesController {
 
       res.status(201).json({ status: 201, message: 'Película creada exitosamente.', data: { id: newMovieId } });
     } catch (error) {
-      deleteImage(imagePath);
       res.status(500).json({ status: 500, message: `Error al crear la película: ${error.message}` });
     }
   }
@@ -260,18 +267,18 @@ class MoviesController {
   // Obtener una película por cuqlquier tipo de búsqueda
   async getBySearch(req, res) {
     try {
-      const dato = req.body;
-  
+      const data = req.body;
+
       // Verificar que exista la película
-      const movies = await moviesModel.getBySearch(dato);
+      const movies = await moviesModel.getBySearch(data);
       if (!movies.length) return res.status(404).json({ status: 404, message: 'Películas no encontradas.' });
-  
+
       // Buscar el género de las películas
       const moviesWithGenre = await Promise.all(movies.map(async (movie) => {
         const { name } = await moviesModel.getGenreByMovieId(movie.id);
         return { ...movie, genre: name };
       }));
-  
+
       // Manejo de Errores
       res.status(200).json({ status: 200, message: 'Películas encontradas.', data: { movies: moviesWithGenre } });
     } catch (error) {
@@ -282,6 +289,14 @@ class MoviesController {
   // Actualizar una película por ID
   async updateById(req, res) {
     try {
+      // Comprobar los permisos para actualizar un admin
+      const { role } = req.admin;
+      const permissions = JSON.parse(req.admin.permissions);
+      if ((role != "admin" && role != "root") || !permissions.edit) {
+        deleteImage(imagePath);
+        return res.status(403).json({ status: 403, message: 'No tienes autorización para realizar está acción.' })
+      };
+
       const id = req.params.id;
       const { genre, title, synopsis, release_date, actors, directors, franchise, rating } = req.body;
 
@@ -339,6 +354,11 @@ class MoviesController {
   // Eliminar una película por ID
   async deleteById(req, res) {
     try {
+      // Comprobar los permisos para actualizar un admin
+      const { role } = req.admin;
+      const permissions = JSON.parse(req.admin.permissions);
+      if ((role != "admin" && role != "root") || !permissions.delete) return res.status(403).json({ status: 403, message: 'No tienes autorización para realizar está acción.' })
+
       const id = req.params.id;
 
       // Verificar si la película existe

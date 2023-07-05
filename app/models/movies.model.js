@@ -135,12 +135,13 @@ class MoviesModel {
   }
 
   // Obtener una película por cuqlquier tipo de búsqueda
-  async getBySearch(dato) {
-    let sql = 'SELECT * FROM movies WHERE 1=1';
-    const values = [];
-  
-    if (dato.search) {
-      sql += ` AND (
+  async getBySearch(data) {
+    try {
+      let sql = 'SELECT * FROM movies WHERE 1=1';
+      const values = [];
+
+      if (data.search) {
+        sql += ` AND (
         title LIKE ? OR
         franchise LIKE ? OR
         synopsis LIKE ? OR
@@ -153,14 +154,13 @@ class MoviesModel {
           WHERE g.name LIKE ?
         )
       )`;
-      values.push(`%${dato.search}%`, `%${dato.search}%`, `%${dato.search}%`, `%${dato.search}%`, `%${dato.search}%`, `%${dato.search}%`);
-    }
-  
-    try {
+        values.push(`%${data.search}%`, `%${data.search}%`, `%${data.search}%`, `%${data.search}%`, `%${data.search}%`, `%${data.search}%`);
+      }
+
       const movies = await query(sql, values);
       return movies;
     } catch (error) {
-      console.log(`Hubo un error al obtener las películas con la búsqueda ${JSON.stringify(dato)}:`, error);
+      console.log(`Hubo un error al obtener las películas con la búsqueda ${JSON.stringify(data)}:`, error);
       throw error;
     }
   }
@@ -172,14 +172,11 @@ class MoviesModel {
       const sql = 'SELECT rating FROM reviews INNER JOIN movies_reviews ON reviews.id = movies_reviews.review_id WHERE movies_reviews.movie_id = ?';
       const values = [movieId];
       const reviews = await query(sql, values);
-  
+
       // Calcular el promedio de las calificaciones
-      let sum = 0;
-      for (const review of reviews) {
-        sum += review.rating;
-      }
-      const averageRating = sum / reviews.length;
-  
+      const sum = reviews.reduce((total, review) => total + review.rating, 0);
+      const averageRating = reviews.length === 0 ? 0 : sum / reviews.length;
+
       // Actualizar el rating de la película
       const updateSql = 'UPDATE movies SET rating = ? WHERE id = ?';
       const updateValues = [averageRating, movieId];

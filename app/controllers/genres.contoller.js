@@ -5,6 +5,11 @@ class GenresController {
   async add(req, res) {
     const { name } = req.body;
 
+    // Comprobar los permisos para actualizar un admin
+    const { role } = req.admin;
+    const permissions = JSON.parse(req.admin.permissions);
+    if ((role != "admin" && role != "root") || !permissions.create) return res.status(403).json({ status: 403, message: 'No tienes autorización para realizar está acción.' });
+
     try {
       // Verificar si ya existe un género con el mismo nombre
       const existingGenre = await genresModel.getByName(name);
@@ -47,6 +52,11 @@ class GenresController {
   // Editar un género por ID
   async updateById(req, res) {
     try {
+      // Comprobar los permisos para actualizar un admin
+      const { role } = req.admin;
+      const permissions = JSON.parse(req.admin.permissions);
+      if ((role != "admin" && role != "root") || !permissions.edit) return res.status(403).json({ status: 403, message: 'No tienes autorización para realizar está acción.' })
+
       const id = req.params.id;
       const { name } = req.body;
 
@@ -76,6 +86,11 @@ class GenresController {
   // Eliminar un género por ID
   async deleteById(req, res) {
     try {
+      // Comprobar los permisos para actualizar un admin
+      const { role } = req.admin;
+      const permissions = JSON.parse(req.admin.permissions);
+      if ((role != "admin" && role != "root") || !permissions.delete) return res.status(403).json({ status: 403, message: 'No tienes autorización para realizar está acción.' })
+
       const id = req.params.id;
 
       // Verificar si el género existe
