@@ -122,7 +122,6 @@ class AdminsController {
       const permissionsAdminRoot = JSON.parse(req.admin.permissions);
       if (roleAdminRoot != "root" || !permissionsAdminRoot.delete) return res.status(403).json({ status: 403, message: 'No tienes autorización para realizar está acción.' });
 
-
       const { id } = req.params;
       await tokensModel.deleteByIdUsername(id); // Eliminar tokens del admin
 
