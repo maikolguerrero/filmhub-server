@@ -11,6 +11,8 @@ class Token {
     const payload = {
       sub: admin.id,
       username: admin.username,
+      role: admin.role,
+      permissions: admin.permissions
     };
     const token = jwt.sign(payload, secret, { expiresIn: '1h' });
     return token;
@@ -18,39 +20,28 @@ class Token {
 
   // Verificar un token
   async verifyToken(req, res, next) {
-    const token = req.headers.authorization?.split(' ')[1];
-
-    if (!token) {
-      return res.status(401).json({ status: 401, message: 'No se proporcionó un token de autenticación' });
-    }
-
     try {
+      const token = req.headers.authorization?.split(' ')[1];
+      if (!token) return res.status(401).json({ status: 401, message: 'No se proporcionó un token de autenticación' });
+
       // Verificar y decodificar el token
       const payload = jwt.verify(token, secret);
 
       // Verificar si el token está almacenado en la base de datos de tokens válidos
       const tokenValido = await tokensModel.getToken(token);
-      if (!tokenValido) {
-        return res.status(401).json({ status: 401, message: 'Tu sesión ha expirado. Por favor, vuelve a iniciar sesión.' });
-      }
+      if (!tokenValido) return res.status(401).json({ status: 401, message: 'Tu sesión ha expirado. Por favor, vuelve a iniciar sesión.' });
 
       // Verificar si el administrador existe y está activo
       const admin = await adminsModel.getByUsername(payload.username);
-      if (!admin) {
-        return res.status(401).json({ status: 401, message: 'Tu sesión ha expirado. Por favor, vuelve a iniciar sesión.' });
-      }
+      if (!admin) return res.status(401).json({ status: 401, message: 'Tu sesión ha expirado. Por favor, vuelve a iniciar sesión.' });
 
       req.admin = payload;
       next();
     } catch (error) {
       // Capturar y manejar los errores de verificación del token
-      if (error.name === 'TokenExpiredError') {
-        return res.status(401).json({ status: 401, message: 'Tu sesión ha expirado. Por favor, vuelve a iniciar sesión.' });
-      } else if (error.name === 'JsonWebTokenError') {
-        return res.status(401).json({ status: 401, message: 'Tu sesión ha expirado. Por favor, vuelve a iniciar sesión.' });
-      } else {
-        return res.status(500).json({ status: 500, message: 'Error en el servidor.' });
-      }
+      if (error.name === 'TokenExpiredError') return res.status(401).json({ status: 401, message: 'Tu sesión ha expirado. Por favor, vuelve a iniciar sesión.' });
+      if (error.name === 'JsonWebTokenError') return res.status(401).json({ status: 401, message: 'Tu sesión ha expirado. Por favor, vuelve a iniciar sesión.' });
+      return res.status(500).json({ status: 500, message: 'Error en el servidor.' });
     }
   }
 

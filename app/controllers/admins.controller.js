@@ -15,7 +15,6 @@ class AdminsController {
 
       // Verificar si el administrador ya existe en la base de datos
       const adminExisting = await adminsModel.getByUsername(username);
-
       if (adminExisting) return res.status(400).json({ status: 400, message: 'El administrador ya existe.' });
 
       // Hasheo de la contraseña
@@ -28,6 +27,111 @@ class AdminsController {
       res.status(201).json({ status: 201, message: 'Administrador creado exitosamente.', data: { id: newAdminId } });
     } catch (error) {
       res.status(500).json({ status: 500, message: `Error al crear el administrador: ${error.message}` });
+    }
+  }
+
+  // Obtener todos los administradores
+  async getAll(req, res) {
+    try {
+      // Verificar si es un admin root
+      const { role } = req.admin;
+      if (role != "root") return res.status(403).json({ status: 403, message: 'No tienes autorización para ver la información de los usuarios.' });
+
+      const admins = await adminsModel.getAll();
+      // Eliminar la contraseña y convertir los permisos en cada admin
+      const adminsWithoutPassword = admins.map(admin => {
+        const { password, ...rest } = admin;
+        return {
+          ...rest,
+          permissions: JSON.parse(admin.permissions)
+        };
+      });
+      res.status(200).json({ status: 200, message: 'Administradores obtenidos correctamente.', data: { admins: adminsWithoutPassword } });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al obtener los administradores: ${error.message}` });
+    }
+  }
+
+  // Obtener un administrador por su ID
+  async getById(req, res) {
+    try {
+      // Verificar si es un admin root
+      const { role } = req.admin;
+      if (role != "root") return res.status(403).json({ status: 403, message: 'No tienes autorización para ver la información de los usuarios.' });
+
+      const id = req.params.id;
+      const admin = await adminsModel.getById(id);
+      if (!admin) return res.status(404).json({ status: 404, message: 'Administrador no encontrado.' })
+
+      res.status(200).json({ status: 200, message: 'Administrador encontrado.', data: { admin: adminsWithoutPassword } });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al obtener el administrador: ${error.message}` });
+    };
+  }
+
+  // Actualizar un administrador por su ID
+  async updatePermissionsById(req, res) {
+    try {
+      // Comprobar los permisos para actualizar un admin
+      const roleAdminRoot = req.admin.role;
+      const permissionsAdminRoot = JSON.parse(req.admin.permissions);
+      if (roleAdminRoot != "root" || !permissionsAdminRoot.edit) return res.status(403).json({ status: 403, message: 'No tienes autorización para realizar está acción.' });
+
+      // Verificar que se proprociono nuevos datos
+      const { id } = req.params;
+      const { permissions } = req.body;
+      if (!permissions) return res.status(400).json({ status: 400, message: 'No se han proporcionado nuevos permisos para actualizar el administrador.' });
+
+
+      // Actualizar los permisos
+      const permissionsString = JSON.stringify(permissions);
+      const success = await adminsModel.updatePermissionsById(id, permissionsString);
+      if (!success) return res.status(404).json({ status: 404, message: 'Administrador no encontrado.' });
+
+      res.status(200).json({ status: 200, message: 'Administrador actualizado correctamente.' });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al actualizar el administrador: ${error.message}` });
+    }
+  }
+
+  // Actualizar un administrador por su ID
+  async updatePassword(req, res) {
+    try {
+      // Verificar que se proprociono nuevos datos
+      const { username, password } = req.body;
+      if (!password) return res.status(400).json({ status: 400, message: 'No se han proporcionado nuevos permisos para actualizar el administrador.' });
+
+      // Hasheo de la contraseña
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Actualizar la contraseña
+      const success = await adminsModel.updatePassword(username, hashedPassword);
+      if (!success) return res.status(404).json({ status: 404, message: 'Administrador no encontrado.' });
+
+      res.status(200).json({ status: 200, message: 'Administrador actualizado correctamente.' });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al actualizar el administrador: ${error.message}` });
+    }
+  }
+
+  // Eliminar un administrador por su ID
+  async deleteById(req, res) {
+    try {
+      // Comprobar los permisos para actualizar un admin
+      const roleAdminRoot = req.admin.role;
+      const permissionsAdminRoot = JSON.parse(req.admin.permissions);
+      if (roleAdminRoot != "root" || !permissionsAdminRoot.delete) return res.status(403).json({ status: 403, message: 'No tienes autorización para realizar está acción.' });
+
+
+      const { id } = req.params;
+      await tokensModel.deleteByIdUsername(id); // Eliminar tokens del admin
+
+      const success = await adminsModel.deleteById(id); // Eliminar admin
+      if (!success) return res.status(404).json({ status: 404, message: 'Administrador no encontrado.' });
+
+      res.status(200).json({ status: 200, message: 'Administrador eliminado correctamente.' });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al eliminar el administrador: ${error.message}` });
     }
   }
 
