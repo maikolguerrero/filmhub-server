@@ -3,6 +3,23 @@ const genresModel = require('../models/genres.model');
 const path = require('path');
 const { deleteImage } = require('../../config/multer');
 
+// Convertir actores y directores en arreglos de una película
+const moviesWithAndActorsDirectorsOneMovie = (movie, name) => {
+  const actorsArray = movie.actors.split(',').map(actor => actor.trim());
+  const directorsArray = movie.directors.split(',').map(director => director.trim());
+  return { ...movie, actors: actorsArray, directors: directorsArray, genre: name };
+};
+
+// Convertir actores y directores en arreglos de varias películas
+function convertArrayActorsAndDirectors(movies) {
+  const moviesWithAndActorsDirectors = movies.map((movie) => {
+    const actorsArray = movie.actors.split(',');
+    const directorsArray = movie.directors.split(',');
+    return { ...movie, actors: actorsArray, directors: directorsArray };
+  });
+  return moviesWithAndActorsDirectors;
+}
+
 class MoviesController {
   // Crear una nueva película
   async add(req, res) {
@@ -46,11 +63,7 @@ class MoviesController {
       }));
 
       // Convertir actores y directores en arreglos
-      const moviesWithGenreAndActorsDirectors = moviesWithGenre.map((movie) => {
-        const actorsArray = movie.actors.split(',');
-        const directorsArray = movie.directors.split(',');
-        return { ...movie, actors: actorsArray, directors: directorsArray };
-      });
+      const moviesWithGenreAndActorsDirectors = convertArrayActorsAndDirectors(moviesWithGenre);
 
       res.status(200).json({ status: 200, message: 'Películas obtenidas correctamente.', data: { movies: moviesWithGenreAndActorsDirectors } });
     } catch (error) {
@@ -70,7 +83,7 @@ class MoviesController {
       // Buscar el género de la película
       const { name } = await moviesModel.getGenreByMovieId(movie.id);
 
-      res.status(200).json({ status: 200, message: 'Película encontrada.', data: { movie: { ...movie, genre: name } } });
+      res.status(200).json({ status: 200, message: 'Película encontrada.', data: { movie: moviesWithAndActorsDirectorsOneMovie(movie, name) } });
     } catch (error) {
       res.status(500).json({ status: 500, message: `Error al obtener la película: ${error.message}` });
     }
@@ -88,13 +101,13 @@ class MoviesController {
       // Buscar el género de la película
       const { name } = await moviesModel.getGenreByMovieId(movie.id);
 
-      res.status(200).json({ status: 200, message: 'Película encontrada.', data: { movie: { ...movie, genre: name } } });
+      res.status(200).json({ status: 200, message: 'Película encontrada.', data: { movie: moviesWithAndActorsDirectorsOneMovie(movie, name) } });
     } catch (error) {
       res.status(500).json({ status: 500, message: `Error al obtener la película: ${error.message}` });
     }
   }
 
-  // Obtener una película por su título (sin importar q tanto se coloque del mismo)
+  // Obtener una película por su título (sin importar que tanto se coloque del mismo)
   async getByTitleAll(req, res) {
     try {
       const title = req.params.title;
@@ -109,8 +122,11 @@ class MoviesController {
         return { ...movie, genre: name };
       }));
 
+      // Convertir actores y directores en arreglos
+      const moviesWithGenreAndActorsDirectors = convertArrayActorsAndDirectors(moviesWithGenre);
+
       // Manejo de Errores
-      res.status(200).json({ status: 200, message: 'Películas encontradas por Titulo.', data: { movies: moviesWithGenre } });
+      res.status(200).json({ status: 200, message: 'Películas encontradas por Titulo.', data: { movies: moviesWithGenreAndActorsDirectors } });
     } catch (error) {
       res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
     }
@@ -131,14 +147,17 @@ class MoviesController {
         return { ...movie, genre: name };
       }));
 
+      // Convertir actores y directores en arreglos
+      const moviesWithGenreAndActorsDirectors = convertArrayActorsAndDirectors(moviesWithGenre);
+
       // Manejo de Errores
-      res.status(200).json({ status: 200, message: 'Películas encontradas.', data: { movies: moviesWithGenre } });
+      res.status(200).json({ status: 200, message: 'Películas encontradas.', data: { movies: moviesWithGenreAndActorsDirectors } });
     } catch (error) {
       res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
     }
   }
 
-// Obtener una película por su franquicia
+  // Obtener una película por su franquicia
   async getByFranchise(req, res) {
     try {
       const franchise = req.params.franchise;
@@ -153,8 +172,11 @@ class MoviesController {
         return { ...movie, genre: name };
       }));
 
+      // Convertir actores y directores en arreglos
+      const moviesWithGenreAndActorsDirectors = convertArrayActorsAndDirectors(moviesWithGenre);
+
       // Manejo de Errores
-      res.status(200).json({ status: 200, message: 'Películas encontradas con Franquicia.', data: { movies: moviesWithGenre } });
+      res.status(200).json({ status: 200, message: 'Películas encontradas con Franquicia.', data: { movies: moviesWithGenreAndActorsDirectors } });
     } catch (error) {
       res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
     }
@@ -175,8 +197,11 @@ class MoviesController {
         return { ...movie, genre: name };
       }));
 
+      // Convertir actores y directores en arreglos
+      const moviesWithGenreAndActorsDirectors = convertArrayActorsAndDirectors(moviesWithGenre);
+
       // Manejo de Errores
-      res.status(200).json({ status: 200, message: 'Películas encontradas con la Sinopsis.', data: { movies: moviesWithGenre } });
+      res.status(200).json({ status: 200, message: 'Películas encontradas con la Sinopsis.', data: { movies: moviesWithGenreAndActorsDirectors } });
     } catch (error) {
       res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
     }
@@ -197,8 +222,11 @@ class MoviesController {
         return { ...movie, genre: name };
       }));
 
+      // Convertir actores y directores en arreglos
+      const moviesWithGenreAndActorsDirectors = convertArrayActorsAndDirectors(moviesWithGenre);
+
       // Manejo de Errores
-      res.status(200).json({ status: 200, message: 'Películas encontradas con el Actor.', data: { movies: moviesWithGenre } });
+      res.status(200).json({ status: 200, message: 'Películas encontradas con el Actor.', data: { movies: moviesWithGenreAndActorsDirectors } });
     } catch (error) {
       res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
     }
@@ -219,10 +247,13 @@ class MoviesController {
         return { ...movie, genre: name };
       }));
 
+      // Convertir actores y directores en arreglos
+      const moviesWithGenreAndActorsDirectors = convertArrayActorsAndDirectors(moviesWithGenre);
+
       // Manejo de Errores
-      res.status(200).json({ status: 200, message: 'Películas encontradas con el Director.', data: { movies: moviesWithGenre } });
+      res.status(200).json({ status: 200, message: 'Películas encontradas con el Director.', data: { movies: moviesWithGenreAndActorsDirectors } });
     } catch (error) {
-    res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
+      res.status(500).json({ status: 500, message: `Error al obtener las películas: ${error.message}` });
     }
   }
 
@@ -283,37 +314,35 @@ class MoviesController {
     }
   }
 
-
   // Eliminar una película por ID
-async deleteById(req, res) {
-  try {
-    const id = req.params.id;
+  async deleteById(req, res) {
+    try {
+      const id = req.params.id;
 
-    // Verificar si la película existe
-    const existingMovie = await moviesModel.getById(id);
-    if (!existingMovie) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
+      // Verificar si la película existe
+      const existingMovie = await moviesModel.getById(id);
+      if (!existingMovie) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
 
-    // Eliminar la relación película-género en la tabla movies_genres
-    await moviesModel.deleteMovieGenre(id);
+      // Eliminar la relación película-género en la tabla movies_genres
+      await moviesModel.deleteMovieGenre(id);
 
-    // Eliminar la relación película-review en la tabla movies_reviews y eliminar los reviews asociados
-    await moviesModel.deleteMovieReviews(id);
+      // Eliminar la relación película-review en la tabla movies_reviews y eliminar los reviews asociados
+      await moviesModel.deleteMovieReviews(id);
 
-    // Eliminar la película
-    const affectedRows = await moviesModel.deleteById(id);
-    if (affectedRows === 0) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
+      // Eliminar la película
+      const affectedRows = await moviesModel.deleteById(id);
+      if (affectedRows === 0) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
 
-    // Eliminar la imagen
-    const folder = `../../static/images/${existingMovie.image}`;
-    const imagePath = path.join(__dirname, folder);
-    deleteImage(imagePath);
+      // Eliminar la imagen
+      const folder = `../../static/images/${existingMovie.image}`;
+      const imagePath = path.join(__dirname, folder);
+      deleteImage(imagePath);
 
-    res.status(200).json({ status: 200, message: 'Película eliminada exitosamente.' });
-  } catch (error) {
-    res.status(500).json({ status: 500, message: `Error al eliminar la película: ${error.message}` });
+      res.status(200).json({ status: 200, message: 'Película eliminada exitosamente.' });
+    } catch (error) {
+      res.status(500).json({ status: 500, message: `Error al eliminar la película: ${error.message}` });
+    }
   }
-}
-
 }
 
 const moviesController = new MoviesController();
