@@ -3,28 +3,34 @@ const moviesModel = require('../models/movies.model');
 
 class ReviewsController {
   // Crear un nuevo review y conectarlo con una película
-    async add(req, res) {
-        const { name, rating, comment, movieId } = req.body;
+async add(req, res) {
+    const { name, rating, comment, movieId } = req.body;
 
-        try {
-        // Verificar si la película existe
+    // Validar que el rating esté entre 0 y 5
+    if (rating < 0 || rating > 5) {
+        return res.status(400).json({ status: 400, message: 'El rating debe estar entre 0 y 5.' });
+    }
+
+    try {
+      // Verificar si la película existe
         const existingMovie = await moviesModel.getById(movieId);
         if (!existingMovie) return res.status(404).json({ status: 404, message: 'Película no encontrada.' });
 
-        // Crear el nuevo review
+      // Crear el nuevo review
         const newReviewId = await reviewsModel.add(name, rating, comment);
 
-        // Conectar el review con la película
+      // Conectar el review con la película
         await reviewsModel.addMovieReview(movieId, newReviewId);
 
-        // Actualizar el rating promedio de la película
+      // Actualizar el rating promedio de la película
         await moviesModel.updateMovieRating(movieId);
 
         res.status(201).json({ status: 201, message: 'Review creado y conectado exitosamente.', data: { id: newReviewId } });
-        } catch (error) {
+    } catch (error) {
         res.status(500).json({ status: 500, message: `Error al crear y conectar el review: ${error.message}` });
-        }
     }
+}
+
 
 
   // Obtener todos los reviews
