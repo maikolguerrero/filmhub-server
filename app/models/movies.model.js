@@ -134,6 +134,37 @@ class MoviesModel {
     }
   }
 
+  // Obtener una película por cuqlquier tipo de búsqueda
+  async getBySearch(dato) {
+    let sql = 'SELECT * FROM movies WHERE 1=1';
+    const values = [];
+  
+    if (dato.search) {
+      sql += ` AND (
+        title LIKE ? OR
+        franchise LIKE ? OR
+        synopsis LIKE ? OR
+        actors LIKE ? OR
+        directors LIKE ? OR
+        id IN (
+          SELECT m.id FROM movies m 
+          JOIN movies_genres mg ON m.id = mg.movie_id 
+          JOIN genres g ON mg.genre_id = g.id 
+          WHERE g.name LIKE ?
+        )
+      )`;
+      values.push(`%${dato.search}%`, `%${dato.search}%`, `%${dato.search}%`, `%${dato.search}%`, `%${dato.search}%`, `%${dato.search}%`);
+    }
+  
+    try {
+      const movies = await query(sql, values);
+      return movies;
+    } catch (error) {
+      console.log(`Hubo un error al obtener las películas con la búsqueda ${JSON.stringify(dato)}:`, error);
+      throw error;
+    }
+  }
+
   // Actualizar una película por ID
   async updateById(id, { title, image, synopsis, release_date, actors, directors, franchise, rating }) {
     const sql = 'UPDATE movies SET title = ?, image = ?, synopsis = ?, release_date = ?, actors = ?, directors = ?, franchise = ?, rating = ? WHERE id = ?';
