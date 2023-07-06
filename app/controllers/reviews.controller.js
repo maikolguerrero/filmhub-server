@@ -5,11 +5,6 @@ class ReviewsController {
   // Crear un nuevo review y conectarlo con una película
   async add(req, res) {
     try {
-      // Comprobar los permisos para actualizar un admin
-      const { role } = req.admin;
-      const permissions = JSON.parse(req.admin.permissions);
-      if ((role != "admin" && role != "root") || !permissions.create) return res.status(403).json({ status: 403, message: 'No tienes autorización para realizar está acción.' });
-
       const { name, rating, comment, movieId } = req.body;
 
       // Validar que el rating esté entre 0 y 5
