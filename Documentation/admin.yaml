@@ -1,0 +1,210 @@
+openapi: 3.0.0
+info:
+  title: Filmhub
+  version: 1.0.0
+  description: SPA de películas usando la librería React & Vite donde el usuario puede ver las películas existentes en la API, ver sus detalles y dejar una reseña. En este apartado se documentan las rutas de las Películas, Administradores, Géneros y Reseñas.
+
+tags:
+  - name: Administradores
+    description: Rutas relacionadas con los administradores
+  - name: Películas
+    description: Rutas relacionadas con las películas
+  - name: Géneros
+    description: Rutas relacionadas con los géneros
+  - name: Reseñas
+    description: Rutas relacionadas con las reseñas
+
+servers:
+  - url: http://localhost:3000/docs
+
+
+paths:
+  /admins/registro:
+    post:
+      summary: Crear un nuevo administrador
+      description: Crea un nuevo administrador en el sistema.
+      operationId: addAdmin
+      tags: [Administradores]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                username:
+                  type: string
+                  description: Nombre de usuario del administrador.
+                password:
+                  type: string
+                  description: Contraseña del administrador.
+                secret:
+                  type: string
+                  description: Clave secreta del administrador
+              required:
+                - username
+                - password
+                - secret
+      responses:
+        '200':
+          description: Administrador creado exitosamente.
+        '400':
+          description: Error en los datos de entrada.
+
+  /admins/login:
+    post:
+      summary: Iniciar sesión
+      description: Inicia sesión en el sistema como administrador.
+      operationId: loginAdmin
+      tags: [Administradores]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                username:
+                  type: string
+                  description: Nombre de usuario del administrador.
+                password:
+                  type: string
+                  description: Contraseña del administrador.
+              required:
+                - username
+                - password
+      responses:
+        '200':
+          description: Inicio de sesión exitoso. Retorna el token de autenticación.
+        '401':
+          description: Credenciales inválidas.
+
+  /admins/logout:
+    post:
+      summary: Cerrar sesión
+      description: Cierra la sesión del administrador.
+      operationId: logoutAdmin
+      tags: [Administradores]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Sesión cerrada exitosamente.
+        '401':
+          description: Token de verificación inválido.
+
+  /admins:
+    get:
+      summary: Obtener todos los administradores
+      description: Obtiene todos los administradores registrados en el sistema.
+      operationId: getAllAdmins
+      tags: [Administradores]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de administradores obtenida exitosamente.
+        '401':
+          description: Token de verificación inválido.
+
+  /admins/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: ID del administrador a obtener/editar/eliminar
+        required: true
+        schema:
+          type: integer
+
+    get:
+      summary: Obtener un administrador por su ID
+      description: Obtiene un administrador específico por su ID.
+      operationId: getAdminById
+      tags: [Administradores]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Administrador obtenido exitosamente.
+        '401':
+          description: Token de verificación inválido.
+
+    delete:
+      summary: Eliminar un administrador por su ID
+      description: Elimina un administrador existente por su ID.
+      operationId: deleteAdminById
+      tags: [Administradores]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Administrador eliminado exitosamente.
+        '401':
+          description: Token de verificación inválido.
+
+  /admins/password:
+    put:
+      summary: Actualizar contraseña de un administrador
+      description: Actualiza la contraseña de un administrador por su username.
+      operationId: updateAdminPassword
+      tags: [Administradores]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                username:
+                  type: string
+                  description: Nombre de usuario del administrador.
+                password:
+                  type: string
+                  description: Nueva contraseña del administrador.
+              required:
+                - username
+                - password
+      responses:
+        '200':
+          description: Contraseña de administrador actualizada exitosamente.
+        '400':
+          description: Error en los datos de entrada.
+
+  /admins/permissions/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: ID del administrador a actualizar sus permisos
+        required: true
+        schema:
+          type: integer
+
+    put:
+      summary: Actualizar permisos de un administrador por su ID
+      description: Actualiza los permisos de un administrador por su ID.
+      operationId: updateAdminPermissionsById
+      tags: [Administradores]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                permissions:
+                  type: object
+                  description: Objeto de permisos actualizado del administrador.
+              required:
+                - permissions
+      responses:
+        '200':
+          description: Permisos de administrador actualizados exitosamente.
+        '400':
+          description: Error en los datos de entrada.
+        '401':
+          description: Token de verificación inválido.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
