@@ -2,8 +2,8 @@
 Backend en Node.js con Express para la aplicación de una Single Page Application (SPA) de películas. Proporciona la funcionalidad de autenticación, gestión de películas y comunicación con la base de datos. El cliente frontend que se complementa con este servidor se encuentra en este repositorio: [filmhub-client](https://github.com/maikolguerrero/filmhub-client)
 
 ## Demostración
-Aquí tienes un video de YouTube que muestra una demostración de la aplicación:
-[![App con React y React Router](https://i9.ytimg.com/vi/_77GlIl4PgA/mqdefault.jpg?sqp=CMiZgqUG-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGFEgXihlMA8=&rs=AOn4CLAJ1shmPZFt9yiTFwvX_fDiBpfv0Q)](https://youtu.be/8sba_KJv41Q)
+Aquí tienes un video de YouTube que muestra una demostración de la aplicación: 
+[App con React y Redux](https://youtu.be/8sba_KJv41Q)
 
 ## Características
 - Gestión de películas y sus detalles, como título, imágen, sinopsis, actores, directores, género, fecha.
