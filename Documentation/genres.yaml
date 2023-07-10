@@ -17,7 +17,7 @@ tags:
 
 
 servers:
-  - url: http://localhost:3000
+  - url: http://localhost:{{port}}/docs
   
 paths:
   /genres:
@@ -40,7 +40,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        '201':
           description: ID del nuevo género creado.
         '400':
           description: Error en los datos de entrada.
