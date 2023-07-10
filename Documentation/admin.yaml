@@ -15,7 +15,7 @@ tags:
     description: Rutas relacionadas con las reseñas
 
 servers:
-  - url: http://localhost:3000/docs
+  - url: http://localhost:{{port}}/docs
 
 
 paths:
@@ -45,7 +45,7 @@ paths:
                 - password
                 - secret
       responses:
-        '200':
+        '201':
           description: Administrador creado exitosamente.
         '400':
           description: Error en los datos de entrada.

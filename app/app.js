@@ -2,8 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const path = require('path');
-const fs = require('fs');
-const yaml = require('yaml');
 
 // Importar los módulos de Swagger
 const swaggerUi = require('swagger-ui-express');
@@ -33,10 +31,10 @@ const options = {
     ],
   },
   apis: [
-    path.resolve(__dirname, '../../filmhub-server/Documentation/admin.yaml'),
-    path.resolve(__dirname, '../../filmhub-server/Documentation/movies.yaml'),
-    path.resolve(__dirname, '../../filmhub-server/Documentation/genres.yaml'),
-    path.resolve(__dirname, '../../filmhub-server/Documentation/reviews.yaml')
+    path.resolve(__dirname, '../Documentation/admin.yaml'),
+    path.resolve(__dirname, '../Documentation/movies.yaml'),
+    path.resolve(__dirname, '../Documentation/genres.yaml'),
+    path.resolve(__dirname, '../Documentation/reviews.yaml')
   ],
 };
 
