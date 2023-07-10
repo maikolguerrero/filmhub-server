@@ -1,0 +1,323 @@
+openapi: 3.0.0
+info:
+  title: Filmhub
+  version: 1.0.0
+  description: SPA de películas usando la librería React & Vite donde el usuario puede ver las películas existentes en la API, ver sus detalles y dejar una reseña. En este apartado se documentan las rutas de las Películas, Administradores, Géneros y Reseñas.
+
+tags:
+  - name: Administradores
+    description: Rutas relacionadas con los administradores
+  - name: Películas
+    description: Rutas relacionadas con las películas
+  - name: Géneros
+    description: Rutas relacionadas con los géneros
+  - name: Reseñas
+    description: Rutas relacionadas con las reseñas
+
+servers:
+  - url: http://localhost:3000/docs
+
+
+paths:
+  /movies:
+    post:
+      summary: Añadir una película
+      description: Añade una nueva película al sistema.
+      operationId: addMovie
+      tags: [Películas]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                genre:
+                  type: string
+                  description: ID del género de la película.
+                title:
+                  type: string
+                  description: Título de la película.
+                image:
+                  type: string
+                  format: binary
+                  description: Imagen de la película.
+                synopsis:
+                  type: string
+                  description: Sinopsis de la película.
+                release_date:
+                  type: string
+                  format: date
+                  description: Fecha de lanzamiento de la película.
+                actors:
+                  type: string
+                  description: Actores de la película (separados por comas).
+                directors:
+                  type: string
+                  description: Directores de la película (separados por comas).
+                franchise:
+                  type: string
+                  description: Franquicia de la película.
+                rating:
+                  type: number
+                  description: Puntuación de la película.
+              required:
+                - genre
+                - title
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: ID de la nueva película añadida.
+        '400':
+          description: Error en los datos de entrada.
+        '401':
+          description: Token de verificación inválido.
+
+    get:
+      summary: Obtener todas las películas
+      description: Obtiene todas las películas almacenadas en el sistema.
+      operationId: getAllMovies
+      tags: [Películas]
+      responses:
+        '200':
+          description: Lista de películas obtenida exitosamente.
+
+  /movies/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: ID de la película a obtener/editar/eliminar
+        required: true
+        schema:
+          type: integer
+
+    get:
+      summary: Obtener una película por su ID
+      description: Obtiene una película específica por su ID.
+      operationId: getMovieById
+      tags: [Películas]
+      responses:
+        '200':
+          description: Película obtenida exitosamente.
+        '400':
+          description: ID de película inválido.
+
+    put:
+      summary: Editar una película por su ID
+      description: Actualiza una película existente por su ID.
+      operationId: updateMovieById
+      tags: [Películas]
+      parameters:
+        - name: id
+          in: path
+          description: ID de la película a editar
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                title:
+                  type: string
+                  description: Nuevo título de la película.
+                image:
+                  type: string
+                  format: binary
+                  description: Nueva imagen de la película.
+                synopsis:
+                  type: string
+                  description: Nueva sinopsis de la película.
+                release_date:
+                  type: string
+                  format: date
+                  description: Nueva fecha de lanzamiento de la película.
+                actors:
+                  type: string
+                  description: Nuevos actores de la película (separados por comas).
+                directors:
+                  type: string
+                  description: Nuevos directores de la película (separados por comas).
+                franchise:
+                  type: string
+                  description: Nueva franquicia de la película.
+                rating:
+                  type: number
+                  description: Nueva puntuación de la película.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Película editada exitosamente.
+        '400':
+          description: Error en los datos de entrada.
+        '401':
+          description: Token de verificación inválido.
+
+    delete:
+      summary: Eliminar una película por su ID
+      description: Elimina una película existente por su ID.
+      operationId: deleteMovieById
+      tags: [Películas]
+      parameters:
+        - name: id
+          in: path
+          description: ID de la película a eliminar
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Película eliminada exitosamente.
+        '400':
+          description: ID de película inválido.
+        '401':
+          description: Token de verificación inválido.
+
+  /movies/title/{title}:
+    parameters:
+      - name: title
+        in: path
+        description: Título de la película a filtrar
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Filtrar películas porgénero
+      description: Filtra las películas por su género.
+      operationId: getMoviesByGenre
+      tags: [Películas]
+      responses:
+        '200':
+          description: Películas filtradas por género obtenidas exitosamente.
+        '400':
+          description: Error en los datos de entrada.
+
+  /movies/franchise/{franchise}:
+    parameters:
+      - name: franchise
+        in: path
+        description: Franquicia de la película a filtrar
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Filtrar películas por franquicia
+      description: Filtra las películas por su franquicia.
+      operationId: getMoviesByFranchise
+      tags: [Películas]
+      responses:
+        '200':
+          description: Películas filtradas por franquicia obtenidas exitosamente.
+        '400':
+          description: Error en los datos de entrada.
+
+  /movies/synopsis/{synopsis}:
+    parameters:
+      - name: synopsis
+        in: path
+        description: Sinopsis de la película a filtrar
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Filtrar películas por sinopsis
+      description: Filtra las películas por su sinopsis.
+      operationId: getMoviesBySynopsis
+      tags: [Películas]
+      responses:
+        '200':
+          description: Películas filtradas por sinopsis obtenidas exitosamente.
+        '400':
+          description: Error en los datos de entrada.
+
+  /movies/actors/{actors}:
+    parameters:
+      - name: actors
+        in: path
+        description: Actores de la película a filtrar
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Filtrar películas por actores
+      description: Filtra las películas por sus actores.
+      operationId: getMoviesByActors
+      tags: [Películas]
+      responses:
+        '200':
+          description: Películas filtradas por actores obtenidas exitosamente.
+        '400':
+          description: Error en los datos de entrada.
+
+  /movies/directors/{directors}:
+    parameters:
+      - name: directors
+        in: path
+        description: Directores de la película a filtrar
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Filtrar películas por directores
+      description: Filtra las películas por sus directores.
+      operationId: getMoviesByDirectors
+      tags: [Películas]
+      responses:
+        '200':
+          description: Películas filtradas por directores obtenidas exitosamente.
+        '400':
+          description: Error en los datos de entrada.
+
+  /movies/title/all/{title}:
+    parameters:
+      - name: title
+        in: path
+        description: Título de la película a filtrar (sin importar el parametro de busqueda)
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Filtrar películas por título sin importar el parametro de busqueda
+      description: Filtra las películas por su título, sin importar el parametro de busqueda.
+      operationId: getMoviesByTitleAll
+      tags: [Películas]
+      responses:
+        '200':
+          description: Películas filtradas por título obtenidas exitosamente.
+        '400':
+          description: Error en los datos de entrada.
+
+  /movies/search:
+    post:
+      summary: Filtrar películas por búsqueda avanzada
+      description: Filtra las películas utilizando diferentes criterios de búsqueda.
+      operationId: searchMovies
+      tags: [Películas]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                search:
+                  type: string
+                  description: Término de búsqueda para filtrar las películas.
+              required:
+                - query
+      responses:
+        '200':
+          description: Películas filtradas por búsqueda obtenidas exitosamente.
+        '400':
+          description: Error en los datos de entrada.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

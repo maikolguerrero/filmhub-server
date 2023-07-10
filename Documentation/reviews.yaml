@@ -1,0 +1,143 @@
+openapi: 3.0.0
+info:
+  title: WebApp-Gestion de Peliculas (REVIEWS)
+  version: 1.0.0
+  description: SPA de películas usando la libreria React & Vite donde el usuario puede ver las películas existentes en la API ver sus detalles y dejar una review, en este apartado se documentan las rutas de los reviews.
+
+tags:
+  - name: Administradores
+    description: Rutas relacionadas con los administradores
+  - name: Películas
+    description: Rutas relacionadas con las películas
+  - name: Géneros
+    description: Rutas relacionadas con los géneros
+  - name: Reseñas
+    description: Rutas relacionadas con las reseñas
+
+
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /reviews:
+    post:
+      summary: Crear un nuevo review
+      description: Crea un nuevo review en el sistema.
+      operationId: createReview
+      tags: [Reseñas]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewInput'
+      responses:
+        '201':
+          description: Review creado exitosamente.
+        '400':
+          description: Error en los datos de entrada.
+
+    get:
+      summary: Obtener todos los reviews
+      description: Obtiene todos los reviews almacenados en el sistema.
+      operationId: getAllReviews
+      tags: [Reseñas]
+      responses:
+        '200':
+          description: Lista de reviews obtenida exitosamente.
+        '400':
+          description: Error al obtener los reviews.
+
+  /reviews/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: ID del review a obtener/editar/eliminar
+        required: true
+        schema:
+          type: string
+
+    get:
+      summary: Obtener un review por su ID
+      description: Obtiene un review específico por su ID.
+      operationId: getReviewById
+      tags: [Reseñas]
+      responses:
+        '200':
+          description: Review obtenido exitosamente.
+        '400':
+          description: ID de review inválido.
+
+    put:
+      summary: Editar un review por su ID
+      description: Actualiza un review existente por su ID.
+      operationId: updateReviewById
+      tags: [Reseñas]
+      parameters:
+        - name: id
+          in: path
+          description: ID del review a editar
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewInput'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Review editado exitosamente.
+        '400':
+          description: Error en los datos de entrada.
+        '401':
+          description: Token de verificación inválido.
+
+    delete:
+      summary: Eliminar un review por su ID
+      description: Elimina un review existente por su ID.
+      operationId: deleteReviewById
+      tags: [Reseñas]
+      parameters:
+        - name: id
+          in: path
+          description: ID del review a eliminar
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Review eliminado exitosamente.
+        '400':
+          description: ID de review inválido.
+        '401':
+          description: Token de verificación inválido.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ReviewInput:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nombre del usuario que realiza el review.
+        rating:
+          type: number
+          description: Puntuación del review (valor numérico).
+        comment:
+          type: string
+          description: Comentario del usuario.
+        movieId:
+          type: integer
+          description: ID de la película asociada al review.

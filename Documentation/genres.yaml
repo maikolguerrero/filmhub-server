@@ -1,0 +1,139 @@
+openapi: 3.0.0
+info:
+  title: WebApp-Gestion de Peliculas (GENRES)
+  version: 1.0.0
+  description: SPA de películas usando la libreria React & Vite donde el usuario puede ver las películas existentes en la API ver sus detalles y dejar una review, en este apartado se documentan las rutas de los generos.
+
+
+tags:
+  - name: Administradores
+    description: Rutas relacionadas con los administradores
+  - name: Películas
+    description: Rutas relacionadas con las películas
+  - name: Géneros
+    description: Rutas relacionadas con los géneros
+  - name: Reseñas
+    description: Rutas relacionadas con las reseñas
+
+
+servers:
+  - url: http://localhost:3000
+  
+paths:
+  /genres:
+    post:
+      summary: Crear un nuevo género
+      description: Crea un nuevo género en el sistema.
+      operationId: createGenre
+      tags: [Géneros]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  description: Nombre del género a crear.
+              required:
+                - name
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: ID del nuevo género creado.
+        '400':
+          description: Error en los datos de entrada.
+        '401':
+          description: Token de verificación inválido.
+
+    get:
+      summary: Obtener todos los géneros
+      description: Obtiene todos los géneros almacenados en el sistema.
+      operationId: getAllGenres
+      tags: [Géneros]
+      responses:
+        '200':
+          description: Lista de géneros obtenida exitosamente.
+
+  /genres/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: ID del género a obtener/editar/eliminar
+        required: true
+        schema:
+          type: integer
+
+    get:
+      summary: Obtener un género por su ID
+      description: Obtiene un género específico por su ID.
+      operationId: getGenreById
+      tags: [Géneros]
+      responses:
+        '200':
+          description: Género obtenido exitosamente.
+        '400':
+          description: ID de género inválido.
+
+    put:
+      summary: Editar un género por su ID
+      description: Actualiza un género existente por su ID.
+      operationId: updateGenreById
+      tags: [Géneros]
+      parameters:
+        - name: id
+          in: path
+          description: ID del género a editar
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  description: Nuevo nombre del género.
+              required:
+                - name
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Género editado exitosamente.
+        '400':
+          description: Error en los datos de entrada.
+        '401':
+          description: Token de verificación inválido.
+
+    delete:
+      summary: Eliminar un género por su ID
+      description: Elimina un género existente por su ID.
+      operationId: deleteGenreById
+      tags: [Géneros]
+      parameters:
+        - name: id
+          in: path
+          description: ID del género a eliminar
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Género eliminado exitosamente.
+        '400':
+          description: ID de género inválido.
+        '401':
+          description: Token de verificación inválido.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
